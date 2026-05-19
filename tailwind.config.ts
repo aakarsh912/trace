@@ -9,8 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "var(--bg)",
+        foreground: "var(--fg)",
+        "fg-secondary": "var(--fg-secondary)",
+        "fg-tertiary": "var(--fg-tertiary)",
+        border: "var(--border)",
+        "bg-subtle": "var(--bg-subtle)",
+      },
+      borderRadius: {
+        DEFAULT: "var(--radius)",
+        lg: "var(--radius-lg)",
       },
     },
   },

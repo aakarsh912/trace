@@ -3,25 +3,330 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutrals — from prototype */
+  --fg: #0A0A0A;
+  --fg-secondary: #525252;
+  --fg-tertiary: #8A8A8A;
+  --fg-disabled: #B5B5B5;
+
+  --bg: #FAFAFA;
+  --bg-surface: #FFFFFF;
+  --bg-hover: #F4F4F4;
+  --bg-subtle: #F5F5F5;
+
+  --border: #E8E8E8;
+  --border-strong: #D4D4D4;
+
+  /* Status */
+  --status-draft-bg: #F4F4F4;
+  --status-draft-fg: #525252;
+  --status-todo-bg: #F0F2F5;
+  --status-todo-fg: #3F4A5C;
+  --status-progress-bg: #EBF1FB;
+  --status-progress-fg: #2C5AA0;
+  --status-submitted-bg: #F0EBFA;
+  --status-submitted-fg: #5B3F9B;
+  --status-returned-bg: #FBF1E5;
+  --status-returned-fg: #8F5A1E;
+  --status-approved-bg: #EAF4EE;
+  --status-approved-fg: #2E6B42;
+  --status-attention-bg: #FEF2F2;
+  --status-attention-fg: #9B3A3A;
+
+  /* IFC category */
+  --ifc-bg: #F4F4F4;
+  --ifc-fg: #3F3F3F;
+
+  /* Workspace accents */
+  --accent-bank: #2B3F6A;
+  --accent-consultant: #3F3F3F;
+  --accent-loanee: #1E4B3B;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Project row hover */
+.project-row-link {
+  background: var(--bg-surface);
+}
+.project-row-link:hover {
+  background: var(--bg-hover);
+}
+.project-row-attention {
+  background: #FFFCF7;
+}
+.project-row-attention:hover {
+  background: #FFF4E4;
+}
+
+/* View switcher */
+.view-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.4;
+  transition: background 80ms, color 80ms;
+}
+.view-switcher-btn:hover {
+  color: var(--fg);
+}
+.view-switcher-btn.active {
+  background: var(--bg-surface);
+  color: var(--fg);
+  box-shadow: 0 0 0 1px var(--border), 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* Action table row hover */
+.action-table-row {
+  transition: background 60ms;
+}
+.action-table-row:hover {
+  background: var(--bg);
+}
+.action-title-link:hover {
+  text-decoration: underline;
+}
+.edit-action-btn {
+  opacity: 0;
+  transition: opacity 80ms;
+}
+.action-table-row:hover .edit-action-btn {
+  opacity: 1;
+}
+
+/* Filter chip buttons */
+.filter-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  font-size: 12.5px;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 80ms;
+}
+.filter-chip-btn:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Action detail layout ──────────────────────────────────────────────────── */
+.action-detail {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  min-height: calc(100vh - 48px);
+}
+.action-sidebar {
+  border-left: 1px solid var(--border);
+  padding: 28px 24px;
+  background: var(--bg);
+  align-self: start;
+  position: sticky;
+  top: 48px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+/* Deliverable checkbox states */
+.deliverable-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  background: var(--bg-surface);
+  transition: border-color 80ms, background 80ms;
+}
+.deliverable-check.checked {
+  background: var(--fg);
+  border-color: var(--fg);
+}
+.deliverable-check.checked::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translate(1px, -1px);
+  display: block;
+}
+.deliverable-check.approved {
+  background: var(--status-approved-fg);
+  border-color: var(--status-approved-fg);
+}
+.deliverable-check.approved::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translate(1px, -1px);
+  display: block;
+}
+.deliverable-check.needs-work {
+  background: var(--status-returned-bg);
+  border-color: var(--status-returned-fg);
+  color: var(--status-returned-fg);
+  font-weight: 700;
+  font-size: 14px;
+}
+.deliverable-check.needs-work::after {
+  content: '!';
+  display: block;
+  line-height: 1;
+}
+
+/* Comment compose textarea */
+.comment-compose-input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  padding: 10px 12px;
+  min-height: 64px;
+  font-family: inherit;
+  font-size: 13.5px;
+  resize: vertical;
+  color: var(--fg);
+  width: 100%;
+  box-sizing: border-box;
+}
+.comment-compose-input:focus {
+  outline: none;
+  border-color: var(--fg-secondary);
+}
+
+/* Evidence upload button */
+.evidence-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--fg-secondary);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: transparent;
+  font-family: inherit;
+  transition: border-color 80ms, color 80ms;
+}
+.evidence-upload:hover:not(:disabled) {
+  border-color: var(--fg-secondary);
+  color: var(--fg);
+}
+.evidence-upload:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Slot upload button */
+.slot-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  color: var(--fg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 80ms;
+}
+.slot-upload-btn:hover { background: var(--bg-hover); }
+
+/* Comment action buttons (edit / delete on own comments) */
+.comment-action-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--fg-tertiary);
+  padding: 0;
+  transition: background 60ms, color 60ms;
+  flex-shrink: 0;
+}
+.comment-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--fg);
+}
+.comment-action-btn.danger:hover {
+  color: var(--status-attention-fg);
+}
+
+/* Document filename — clickable download trigger */
+.download-link:hover:not(:disabled) {
+  text-decoration: underline;
+  color: var(--fg);
+}
+
+/* Comment row — reveal edit/delete on hover */
+.comment-row .comment-actions-group {
+  opacity: 0;
+  transition: opacity 80ms;
+}
+.comment-row:hover .comment-actions-group {
+  opacity: 1;
+}
+
+/* Settings nav hover */
+.settings-nav-link-hover:hover {
+  background: var(--bg-subtle);
+  color: var(--fg);
+}
+
+.action-project-link {
+  color: var(--fg);
+  text-decoration: none;
+}
+.action-project-link:hover {
+  text-decoration: underline;
 }
