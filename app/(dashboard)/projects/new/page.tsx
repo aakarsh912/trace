@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db/client";
-import { workspaces, workspaceMembers, projects, invites } from "@/lib/db/schema";
+import { workspaces, workspaceMembers, projects } from "@/lib/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth/clerk";
 import { CreateProjectForm } from "@/components/projects/create-project-form";
