@@ -27,6 +27,8 @@ import { CommentComposer } from "@/components/actions/comment-composer";
 import { UploadButton } from "@/components/actions/upload-button";
 import { DownloadLink } from "@/components/actions/download-link";
 import { CommentItem } from "@/components/actions/comment-item";
+import { AssigneeChip } from "@/components/actions/assignee-chip";
+import type { AssigneeMember } from "@/components/actions/assignee-chip";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,8 @@ type ActionData = {
   projectName: string;
   bankWorkspaceId: string;
   consultantWorkspaceId: string;
+  assignedTo: AssigneeMember | null;
+  departmentHint: string | null;
   loaneeWorkspaceId: string;
   actionNumber: string;
   ifcCategory: IfcCategory;
@@ -210,6 +214,8 @@ async function getActionData(
       title: actions.title,
       description: actions.description,
       isPublished: actions.isPublished,
+      departmentHint: actions.departmentHint,
+      assignedToId: actions.assignedToId,
       projectId: projects.id,
       projectName: projects.name,
       bankWorkspaceId: projects.bankWorkspaceId,
@@ -378,6 +384,17 @@ async function getActionData(
     workspaceName: c.workspaceName ?? null,
   }));
 
+  // Resolve assignee name if set
+  let assignedTo: AssigneeMember | null = null;
+  if (actionRow.assignedToId) {
+    const [assigneeRow] = await db
+      .select({ id: users.id, firstName: users.firstName, lastName: users.lastName })
+      .from(users)
+      .where(eq(users.id, actionRow.assignedToId))
+      .limit(1);
+    assignedTo = assigneeRow ?? null;
+  }
+
   return {
     id: actionRow.actionId,
     projectId: actionRow.projectId,
@@ -390,9 +407,25 @@ async function getActionData(
     title: actionRow.title,
     description: actionRow.description,
     isPublished: actionRow.isPublished,
+    departmentHint: actionRow.departmentHint ?? null,
+    assignedTo,
     deliverables: enrichedDeliverables,
     comments: enrichedComments,
   };
+}
+
+async function getLoaneeMembers(loaneeWorkspaceId: string): Promise<AssigneeMember[]> {
+  return db
+    .select({ id: users.id, firstName: users.firstName, lastName: users.lastName })
+    .from(workspaceMembers)
+    .innerJoin(users, eq(workspaceMembers.userId, users.id))
+    .where(
+      and(
+        eq(workspaceMembers.workspaceId, loaneeWorkspaceId),
+        isNull(workspaceMembers.deletedAt),
+        isNull(users.deletedAt)
+      )
+    );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -789,6 +822,12 @@ export default async function ActionPage({
   // Loanee can't see unpublished actions
   if (wsCtx.workspaceType === "loanee" && !data.isPublished) notFound();
 
+  // Fetch loanee members for the assignee picker (loanee workspace only)
+  const loaneeMembers =
+    wsCtx.workspaceType === "loanee"
+      ? await getLoaneeMembers(data.loaneeWorkspaceId)
+      : [];
+
   const displayStatus = getDisplayStatus(data.deliverables, data.isPublished);
   const approvedCount = data.deliverables.filter(
     (d) => d.status === "approved"
@@ -802,6 +841,7 @@ export default async function ActionPage({
   const isLoanee = wsCtx.workspaceType === "loanee";
   const hasFooter = isConsultant && data.isPublished;
   const userInitials = getInitials(wsCtx.firstName, wsCtx.lastName);
+  const canAssign = isLoanee && can("loanee", wsCtx.role, "deliverable:assign");
   const allApproved = totalCount > 0 && approvedCount === totalCount;
 
   const ifcFull = IFC_CATEGORIES[data.ifcCategory];
@@ -925,6 +965,16 @@ export default async function ActionPage({
             >
               {ifcChip}
             </span>
+            {isLoanee && (
+              <AssigneeChip
+                actionId={data.id}
+                projectId={data.projectId}
+                assignedTo={data.assignedTo}
+                members={loaneeMembers}
+                canAssign={canAssign}
+                departmentHint={data.departmentHint}
+              />
+            )}
           </div>
 
           {/* Recommendation */}
@@ -1049,6 +1099,26 @@ export default async function ActionPage({
                 <StatusChipEl status={displayStatus} />
               </MetaRow>
               <MetaRow label="IFC Standard">{ifcFull}</MetaRow>
+              {isLoanee && data.departmentHint && (
+                <MetaRow label="Suggested team">
+                  <span style={{ color: "var(--fg-secondary)" }}>
+                    {data.departmentHint}
+                    <span style={{ color: "var(--fg-tertiary)" }}> · hint from consultant</span>
+                  </span>
+                </MetaRow>
+              )}
+              {isLoanee && (
+                <MetaRow label="Assignee">
+                  <AssigneeChip
+                    actionId={data.id}
+                    projectId={data.projectId}
+                    assignedTo={data.assignedTo}
+                    members={loaneeMembers}
+                    canAssign={canAssign}
+                    departmentHint={data.departmentHint}
+                  />
+                </MetaRow>
+              )}
               <MetaRow label="Action">
                 <span
                   style={{

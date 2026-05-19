@@ -79,7 +79,7 @@ export async function sendActionAssignedEmail(
   to: string,
   props: ActionAssignedEmailProps
 ): Promise<void> {
-  const subject = `You've been assigned: ${props.actionNumber}${props.deliverableLetter} in ${props.projectName}`;
+  const subject = `You've been assigned: ${props.actionNumber} — ${props.actionTitle} in ${props.projectName}`;
   const html = await render(ActionAssignedEmail(props));
   await send(to, subject, html, "action-assigned");
 }

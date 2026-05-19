@@ -199,6 +199,7 @@ export const actions = pgTable(
     priority: text("priority"), // critical | high | medium | low
     targetDate: timestamp("target_date"),
     departmentHint: text("department_hint"),
+    assignedToId: text("assigned_to_id").references(() => users.id),
     createdById: text("created_by_id").references(() => users.id),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),

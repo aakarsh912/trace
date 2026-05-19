@@ -6,9 +6,6 @@ export type ActionAssignedEmailProps = {
   actionTitle: string;
   projectName: string;
   assignerName: string;
-  deliverableLetter: string;
-  deliverableDescription: string;
-  dueDate?: string;
   actionUrl: string;
 };
 
@@ -17,35 +14,26 @@ export function ActionAssignedEmail({
   actionTitle,
   projectName,
   assignerName,
-  deliverableLetter,
-  deliverableDescription,
-  dueDate,
   actionUrl,
 }: ActionAssignedEmailProps): JSX.Element {
   return (
     <EmailBase
-      preview={`${assignerName} assigned you to ${actionNumber}${deliverableLetter} in ${projectName}`}
+      preview={`${assignerName} assigned you to ${actionNumber} in ${projectName}`}
     >
-      <Text style={heading}>You&apos;ve been assigned a deliverable</Text>
+      <Text style={heading}>You&apos;ve been assigned an action</Text>
       <Text style={body}>
-        <strong>{assignerName}</strong> has assigned you to a deliverable in{" "}
+        <strong>{assignerName}</strong> has assigned you to an action in{" "}
         <strong>{projectName}</strong>:
       </Text>
-      <div style={deliverableCard}>
-        <Text style={deliverableRef}>
-          {actionNumber}{deliverableLetter}
-        </Text>
-        <Text style={deliverableTitle}>{actionTitle}</Text>
-        <Text style={deliverableDesc}>{deliverableDescription}</Text>
-        {dueDate && (
-          <Text style={dueDateText}>Due: {dueDate}</Text>
-        )}
+      <div style={actionCard}>
+        <Text style={actionRef}>{actionNumber}</Text>
+        <Text style={actionTitle_}>{actionTitle}</Text>
       </div>
       <Text style={body}>
         Log in to view the full action requirements and upload your evidence.
       </Text>
       <Button href={actionUrl} style={button}>
-        View deliverable
+        View action
       </Button>
     </EmailBase>
   );
@@ -65,7 +53,7 @@ const body = {
   margin: "0 0 14px",
 };
 
-const deliverableCard = {
+const actionCard = {
   backgroundColor: "#f8f8f8",
   borderLeft: "3px solid #0A0A0A",
   borderRadius: "4px",
@@ -73,7 +61,7 @@ const deliverableCard = {
   marginBottom: "20px",
 };
 
-const deliverableRef = {
+const actionRef = {
   fontSize: "11px",
   fontWeight: "700",
   color: "#888888",
@@ -82,24 +70,11 @@ const deliverableRef = {
   margin: "0 0 4px",
 };
 
-const deliverableTitle = {
+const actionTitle_ = {
   fontSize: "14px",
   fontWeight: "600",
   color: "#111111",
-  margin: "0 0 4px",
-};
-
-const deliverableDesc = {
-  fontSize: "13px",
-  color: "#555555",
   margin: "0",
-  lineHeight: "1.5",
-};
-
-const dueDateText = {
-  fontSize: "12px",
-  color: "#888888",
-  margin: "8px 0 0",
 };
 
 const button = {
