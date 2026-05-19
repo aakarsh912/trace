@@ -153,7 +153,7 @@ export function InviteAccept({ token, workspaceName, workspaceType, role, email 
 
         {/* Workspace card */}
         <div style={{ background: "white", border: "1px solid #e5e5e5", borderRadius: 8, padding: "20px 24px", marginBottom: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>You're invited to join</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>You&apos;re invited to join</div>
           <div style={{ fontWeight: 700, fontSize: 20, color: "#111", marginBottom: 6 }}>{workspaceName}</div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, background: typeColor + "18", color: typeColor }}>
@@ -236,7 +236,7 @@ function AcceptPanel({ inviteEmail, currentEmail, workspaceName, loading, error,
         <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 6, padding: "12px 14px" }}>
           <div style={{ fontWeight: 600, fontSize: 13, color: "#854d0e", marginBottom: 4 }}>Wrong account</div>
           <div style={{ fontSize: 13, color: "#78350f", lineHeight: 1.5 }}>
-            You're signed in as <strong>{currentEmail}</strong>, but this invite is for <strong>{inviteEmail}</strong>. Please sign out first and create a new account.
+            You&apos;re signed in as <strong>{currentEmail}</strong>, but this invite is for <strong>{inviteEmail}</strong>. Please sign out first and create a new account.
           </div>
         </div>
         <button onClick={onSignOut} style={btnStyle(false)}>
@@ -329,7 +329,7 @@ function SignUpPanel({ email, firstName, lastName, password, loading, error, onF
             <button onClick={() => setMode("signin")} style={{ background: "none", border: "none", color: "#0A0A0A", fontWeight: 500, cursor: "pointer", fontSize: 13, padding: 0 }}>Sign in instead</button>
           </>
         ) : (
-          <>Don't have an account?{" "}
+          <>Don&apos;t have an account?{" "}
             <button onClick={() => setMode("signup")} style={{ background: "none", border: "none", color: "#0A0A0A", fontWeight: 500, cursor: "pointer", fontSize: 13, padding: 0 }}>Create one</button>
           </>
         )}

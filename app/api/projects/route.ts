@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
-import { projects, workspaces, workspaceMembers, users, invites } from "@/lib/db/schema";
+import { projects, workspaces, workspaceMembers, invites } from "@/lib/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth/clerk";
 import { sendInviteEmail } from "@/lib/email/send";

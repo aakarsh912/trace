@@ -5,7 +5,6 @@ import Link from "next/link";
 import { db } from "@/lib/db/client";
 import {
   users,
-  workspaceMembers,
   workspaces,
   projects,
   actions,
@@ -104,9 +103,6 @@ async function getContext(): Promise<WorkspaceCtx | null> {
   };
 }
 
-const bankWs = workspaces;
-const consultantWs = workspaces;
-const loaneeWs = workspaces;
 
 async function getProjectsWithStats(
   wsId: string,
@@ -414,7 +410,7 @@ function ConsultantDashboard({ ctx, projectStats, submitted }: {
   );
 }
 
-function BankDashboard({ ctx, projectStats }: { ctx: WorkspaceCtx; projectStats: ProjectStats[] }): JSX.Element {
+function BankDashboard({ projectStats }: { projectStats: ProjectStats[] }): JSX.Element {
   const submittedCount = projectStats.reduce((s, p) => s + p.submittedCount, 0);
   const sentBackCount = projectStats.reduce((s, p) => s + p.sentBackCount, 0);
   const approvedCount = projectStats.reduce((s, p) => s + p.approvedCount, 0);
@@ -599,7 +595,7 @@ export default async function DashboardPage(): Promise<JSX.Element> {
   }
 
   if (ctx.workspaceType === "bank") {
-    return <BankDashboard ctx={ctx} projectStats={projectStats} />;
+    return <BankDashboard projectStats={projectStats} />;
   }
 
   // loanee

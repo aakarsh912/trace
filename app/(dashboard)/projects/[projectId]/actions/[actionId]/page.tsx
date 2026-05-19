@@ -453,12 +453,10 @@ function DeliverableCard({
   deliverable,
   workspaceType,
   role,
-  currentUserId,
 }: {
   deliverable: DeliverableRow;
   workspaceType: WorkspaceType;
   role: WorkspaceMemberRole;
-  currentUserId: string;
 }): JSX.Element {
   const { id, letter, description, status, doc, review } = deliverable;
   const isConsultant = workspaceType === "consultant";
@@ -981,7 +979,6 @@ export default async function ActionPage({
                     deliverable={d}
                     workspaceType={wsCtx.workspaceType}
                     role={wsCtx.role}
-                    currentUserId={wsCtx.userId}
                   />
                 ))}
               </div>

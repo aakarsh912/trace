@@ -82,7 +82,7 @@ export function InviteModal({ workspaceName }: Props): JSX.Element {
               <div>
                 <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>Invite member</div>
                 <div style={{ fontSize: 12, color: "var(--fg-tertiary)", marginTop: 2 }}>
-                  They'll receive an email invite to join {workspaceName}.
+                  They&apos;ll receive an email invite to join {workspaceName}.
                 </div>
               </div>
               <button onClick={close} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--fg-tertiary)", padding: 4, borderRadius: 4, display: "flex", alignItems: "center" }}>

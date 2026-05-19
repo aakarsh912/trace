@@ -220,7 +220,7 @@ export function CreateProjectForm({ banks, consultantName }: Props): JSX.Element
         gap: 10, marginTop: 20,
       }}>
         <span style={{ fontSize: 12, color: "var(--fg-tertiary)", marginRight: "auto" }}>
-          You'll create the action plan on the next step.
+          You&apos;ll create the action plan on the next step.
         </span>
         <a
           href="/projects"

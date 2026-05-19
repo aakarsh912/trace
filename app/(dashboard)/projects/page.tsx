@@ -7,8 +7,6 @@ import { db } from "@/lib/db/client";
 import {
   projects,
   workspaces,
-  users,
-  workspaceMembers,
   actions,
   deliverables,
 } from "@/lib/db/schema";
