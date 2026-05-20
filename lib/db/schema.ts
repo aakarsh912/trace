@@ -25,13 +25,15 @@ export const workspaceMemberRoleEnum = pgEnum("workspace_member_role", [
 
 export const ifcCategoryEnum = pgEnum("ifc_category", [
   "regulatory",
+  "c1",
   "ps1",
   "ps2",
   "ps3",
   "ps4",
+  "ps5",
   "ps6",
+  "ps7",
   "ps8",
-  "c1",
 ]);
 
 export const deliverableStatusEnum = pgEnum("deliverable_status", [
@@ -345,13 +347,15 @@ export type WorkspaceType = "bank" | "consultant" | "loanee";
 export type WorkspaceMemberRole = "admin" | "member";
 export type IfcCategory =
   | "regulatory"
+  | "c1"
   | "ps1"
   | "ps2"
   | "ps3"
   | "ps4"
+  | "ps5"
   | "ps6"
-  | "ps8"
-  | "c1";
+  | "ps7"
+  | "ps8";
 export type DeliverableStatus = "pending" | "submitted" | "approved" | "sent_back";
 export type ReviewDecision = "approved" | "sent_back";
 export type ActionStatus =

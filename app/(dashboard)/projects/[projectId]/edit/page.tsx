@@ -35,13 +35,15 @@ type ActionRow = {
 
 const IFC_CATEGORY_ORDER: IfcCategory[] = [
   "regulatory",
+  "c1",
   "ps1",
   "ps2",
   "ps3",
   "ps4",
+  "ps5",
   "ps6",
+  "ps7",
   "ps8",
-  "c1",
 ];
 
 // ─── Data fetching ────────────────────────────────────────────────────────────

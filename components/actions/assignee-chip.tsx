@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export type AssigneeMember = {
   id: string;
@@ -33,11 +34,17 @@ export function AssigneeChip({
   canAssign,
   departmentHint,
 }: Props): JSX.Element {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState<AssigneeMember | null>(assignedTo);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+
+  // Sync both chips when the server re-renders after router.refresh()
+  useEffect(() => {
+    setCurrent(assignedTo);
+  }, [assignedTo]);
 
   useEffect(() => {
     if (!open) return;
@@ -65,7 +72,10 @@ export function AssigneeChip({
         }
       );
       if (res.ok) {
+        // Optimistic update for this chip
         setCurrent(userId ? (members.find((m) => m.id === userId) ?? null) : null);
+        // Refresh server data so the other chip syncs via the useEffect above
+        router.refresh();
       }
     } finally {
       setSaving(false);

@@ -155,13 +155,15 @@ const STATUS_CHIP: Record<
 
 const IFC_CHIP_LABEL: Record<IfcCategory, string> = {
   regulatory: "Regulatory",
+  c1: "General",
   ps1: "PS1 · Assessment",
   ps2: "PS2 · Labor",
   ps3: "PS3 · Resource",
   ps4: "PS4 · Community",
+  ps5: "PS5 · Land",
   ps6: "PS6 · Biodiversity",
+  ps7: "PS7 · Indigenous",
   ps8: "PS8 · Cultural",
-  c1: "C1 · Engagement",
 };
 
 function getInitials(

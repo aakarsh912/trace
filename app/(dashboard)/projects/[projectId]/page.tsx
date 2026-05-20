@@ -9,6 +9,7 @@ import {
   workspaces,
   actions,
   deliverables,
+  users,
 } from "@/lib/db/schema";
 import { eq, and, isNull, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
@@ -40,6 +41,10 @@ type ActionRow = {
   submitted: number;
   approved: number;
   sentBack: number;
+  targetDate: Date | null;
+  departmentHint: string | null;
+  assigneeFirstName: string | null;
+  assigneeLastName: string | null;
 };
 
 type ProjectData = {
@@ -55,24 +60,28 @@ type ProjectData = {
 
 const IFC_CATEGORY_ORDER: IfcCategory[] = [
   "regulatory",
+  "c1",
   "ps1",
   "ps2",
   "ps3",
   "ps4",
+  "ps5",
   "ps6",
+  "ps7",
   "ps8",
-  "c1",
 ];
 
 const IFC_SHORT_LABEL: Record<IfcCategory, string> = {
   regulatory: "RC",
+  c1: "C1",
   ps1: "PS1",
   ps2: "PS2",
   ps3: "PS3",
   ps4: "PS4",
+  ps5: "PS5",
   ps6: "PS6",
+  ps7: "PS7",
   ps8: "PS8",
-  c1: "C1",
 };
 
 type BoardColumnKey = "draft" | "progress" | "submitted" | "returned" | "approved";
@@ -233,8 +242,13 @@ async function getActionsForProject(
       title: actions.title,
       description: actions.description,
       isPublished: actions.isPublished,
+      targetDate: actions.targetDate,
+      departmentHint: actions.departmentHint,
+      assigneeFirstName: users.firstName,
+      assigneeLastName: users.lastName,
     })
     .from(actions)
+    .leftJoin(users, eq(actions.assignedToId, users.id))
     .where(and(...conditions));
 
   if (actionRows.length === 0) return [];
@@ -297,6 +311,10 @@ async function getActionsForProject(
       title: a.title,
       description: a.description,
       isPublished: a.isPublished,
+      targetDate: a.targetDate ?? null,
+      departmentHint: a.departmentHint ?? null,
+      assigneeFirstName: a.assigneeFirstName ?? null,
+      assigneeLastName: a.assigneeLastName ?? null,
       total: s.total,
       pending: s.pending,
       submitted: s.submitted,
@@ -729,10 +747,23 @@ function DeliverableDots({ row }: { row: ActionRow }): JSX.Element {
   );
 }
 
+function formatTargetDate(date: Date): string {
+  const now = new Date();
+  const opts: Intl.DateTimeFormatOptions =
+    date.getFullYear() === now.getFullYear()
+      ? { month: "short", day: "numeric" }
+      : { month: "short", day: "numeric", year: "numeric" };
+  return new Intl.DateTimeFormat("en-US", opts).format(date);
+}
+
 function BoardCard({ row, projectId }: { row: ActionRow; projectId: string }): JSX.Element {
   const status = getDisplayStatus(row);
   const isReturned = status === "returned";
   const isApproved = status === "approved";
+  const hasAssignee = row.assigneeFirstName !== null || row.assigneeLastName !== null;
+  const assigneeInitials = (
+    (row.assigneeFirstName?.[0] ?? "") + (row.assigneeLastName?.[0] ?? "")
+  ).toUpperCase() || "?";
 
   return (
     <Link
@@ -740,7 +771,7 @@ function BoardCard({ row, projectId }: { row: ActionRow; projectId: string }): J
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 8,
+        gap: 7,
         padding: "10px 12px",
         background: isReturned ? "#FFFBF4" : "var(--bg-surface)",
         border: `1px solid ${isReturned ? "#E8D0A8" : "var(--border)"}`,
@@ -758,13 +789,12 @@ function BoardCard({ row, projectId }: { row: ActionRow; projectId: string }): J
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
           fontFamily: "ui-monospace, monospace",
           fontSize: 10.5,
           color: "var(--fg-tertiary)",
         }}
       >
-        <span style={{ flexShrink: 0 }}>{row.actionNumber}</span>
+        <span>{row.actionNumber}</span>
         <span
           style={{
             marginLeft: "auto",
@@ -772,7 +802,6 @@ function BoardCard({ row, projectId }: { row: ActionRow; projectId: string }): J
             background: "var(--bg-subtle)",
             borderRadius: 3,
             color: "var(--fg-secondary)",
-            flexShrink: 0,
           }}
         >
           {IFC_SHORT_LABEL[row.ifcCategory]}
@@ -797,22 +826,94 @@ function BoardCard({ row, projectId }: { row: ActionRow; projectId: string }): J
       </p>
 
       {/* Deliverable dots */}
+      {row.total > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <DeliverableDots row={row} />
+          <span style={{ fontSize: 11, color: "var(--fg-tertiary)" }}>
+            {row.approved}/{row.total}
+          </span>
+        </div>
+      )}
+
+      {/* Footer: dept + due date + assignee */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          paddingTop: 7,
+          gap: 5,
+          paddingTop: 6,
           borderTop: "1px dashed var(--border)",
-          marginTop: 2,
+          marginTop: 1,
+          minWidth: 0,
         }}
       >
-        <DeliverableDots row={row} />
-        {row.total > 0 && (
-          <span style={{ fontSize: 11, color: "var(--fg-tertiary)", marginLeft: 2 }}>
-            {row.approved}/{row.total}
+        {/* Dept hint */}
+        {row.departmentHint && (
+          <span
+            style={{
+              padding: "1px 6px",
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              borderRadius: 3,
+              fontSize: 10.5,
+              color: "var(--fg-secondary)",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: 90,
+              flexShrink: 1,
+            }}
+          >
+            {row.departmentHint}
           </span>
         )}
+
+        {/* Due date */}
+        <span
+          style={{
+            fontSize: 11,
+            color: row.targetDate ? "var(--fg-secondary)" : "var(--fg-tertiary)",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}
+        >
+          {row.targetDate ? formatTargetDate(row.targetDate) : "No date"}
+        </span>
+
+        {/* Assignee avatar — pushed right */}
+        <span style={{ marginLeft: "auto", flexShrink: 0 }}>
+          {hasAssignee ? (
+            <span
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: "#5B7FA3",
+                color: "white",
+                fontSize: 9,
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {assigneeInitials}
+            </span>
+          ) : (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="var(--fg-tertiary)"
+              strokeWidth="1.3"
+            >
+              <circle cx="8" cy="6" r="3" />
+              <path d="M2 14c1-3 4-4 6-4s5 1 6 4" />
+            </svg>
+          )}
+        </span>
       </div>
     </Link>
   );
@@ -829,12 +930,11 @@ function ActionsBoard({
     <div
       style={{
         display: "grid",
-        gridAutoColumns: 300,
+        gridAutoColumns: 290,
         gridAutoFlow: "column",
-        gap: 12,
-        padding: "16px 24px 32px 24px",
+        gap: 10,
+        padding: "16px 24px 40px 24px",
         overflowX: "auto",
-        minHeight: "calc(100vh - 48px - 108px - 56px)",
         background: "var(--bg)",
         alignItems: "start",
       }}
@@ -856,9 +956,6 @@ function ActionsBoard({
               background: colBg,
               border: colBorder,
               borderRadius: "var(--radius-lg)",
-              minHeight: 200,
-              maxHeight: "calc(100vh - 48px - 108px - 56px - 48px)",
-              overflow: "hidden",
             }}
           >
             {/* Column header */}
@@ -871,9 +968,6 @@ function ActionsBoard({
                 gap: 8,
                 background: headerBg,
                 borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
-                position: "sticky",
-                top: 0,
-                zIndex: 2,
                 flexShrink: 0,
               }}
             >
@@ -914,8 +1008,6 @@ function ActionsBoard({
                 display: "flex",
                 flexDirection: "column",
                 gap: 6,
-                overflowY: "auto",
-                flex: 1,
               }}
             >
               {colActions.length === 0 ? (

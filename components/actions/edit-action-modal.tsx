@@ -5,13 +5,15 @@ import type { IfcCategory } from "@/lib/db/schema";
 
 const IFC_OPTIONS: { value: IfcCategory; label: string }[] = [
   { value: "regulatory", label: "Regulatory Compliance" },
-  { value: "ps1",        label: "PS1 · Assessment & Management of E&S Risks" },
-  { value: "ps2",        label: "PS2 · Labor & Working Conditions" },
-  { value: "ps3",        label: "PS3 · Resource Efficiency & Pollution Prevention" },
-  { value: "ps4",        label: "PS4 · Community Health, Safety & Security" },
+  { value: "c1",         label: "General Compliance" },
+  { value: "ps1",        label: "PS1 · Assessment and Management of E&S Risks" },
+  { value: "ps2",        label: "PS2 · Labor and Working Conditions" },
+  { value: "ps3",        label: "PS3 · Resource Efficiency and Pollution Prevention" },
+  { value: "ps4",        label: "PS4 · Community Health, Safety, and Security" },
+  { value: "ps5",        label: "PS5 · Land Acquisition and Involuntary Resettlement" },
   { value: "ps6",        label: "PS6 · Biodiversity Conservation" },
+  { value: "ps7",        label: "PS7 · Indigenous Peoples" },
   { value: "ps8",        label: "PS8 · Cultural Heritage" },
-  { value: "c1",         label: "C1 · Community Engagement" },
 ];
 
 const PRIORITY_OPTIONS = [

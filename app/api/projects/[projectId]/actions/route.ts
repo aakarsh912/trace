@@ -13,7 +13,7 @@ const deliverableSchema = z.object({
 });
 
 const schema = z.object({
-  ifcCategory: z.enum(["regulatory", "ps1", "ps2", "ps3", "ps4", "ps6", "ps8", "c1"]),
+  ifcCategory: z.enum(["regulatory", "c1", "ps1", "ps2", "ps3", "ps4", "ps5", "ps6", "ps7", "ps8"]),
   title: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
   priority: z.enum(["critical", "high", "medium", "low"]).optional(),
