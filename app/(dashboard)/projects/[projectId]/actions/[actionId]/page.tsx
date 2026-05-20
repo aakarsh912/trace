@@ -771,6 +771,7 @@ function DeliverableCard({
           }}
         >
           <UploadButton
+            key={doc?.id ?? "no-doc"}
             deliverableId={id}
             label={status === "sent_back" ? "Upload new version" : "Upload evidence"}
           />
