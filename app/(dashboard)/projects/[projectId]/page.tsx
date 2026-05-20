@@ -75,17 +75,19 @@ const IFC_SHORT_LABEL: Record<IfcCategory, string> = {
   c1: "C1",
 };
 
-type BoardColumnKey = "draft" | "progress" | "submitted" | "approved";
+type BoardColumnKey = "draft" | "progress" | "submitted" | "returned" | "approved";
 
 const BOARD_COLUMNS: {
   key: BoardColumnKey;
   label: string;
   dotColor: string;
   statuses: DisplayStatus[];
+  attention?: boolean;
 }[] = [
   { key: "draft",     label: "Draft",       dotColor: "var(--status-draft-fg)",     statuses: ["draft"] },
-  { key: "progress",  label: "In Progress",  dotColor: "var(--status-progress-fg)",  statuses: ["todo", "progress", "returned"] },
+  { key: "progress",  label: "In Progress",  dotColor: "var(--status-progress-fg)",  statuses: ["todo", "progress"] },
   { key: "submitted", label: "Submitted",    dotColor: "var(--status-submitted-fg)", statuses: ["submitted"] },
+  { key: "returned",  label: "Returned",     dotColor: "var(--status-returned-fg)",  statuses: ["returned"], attention: true },
   { key: "approved",  label: "Approved",     dotColor: "var(--status-approved-fg)",  statuses: ["approved"] },
 ];
 
@@ -841,13 +843,18 @@ function ActionsBoard({
         const colActions = actionRows.filter(
           (a) => (col.statuses as string[]).includes(getDisplayStatus(a))
         );
+        const colBg = col.attention ? "#FBF1E599" : "var(--bg-subtle)";
+        const colBorder = col.attention ? "1px solid #E8D0A870" : "none";
+        const headerBg = col.attention ? "#FBF1E5" : "var(--bg-subtle)";
+        const headerBorderBottom = col.attention ? "1px solid #E8D0A8" : "1px solid var(--border)";
         return (
           <div
             key={col.key}
             style={{
               display: "flex",
               flexDirection: "column",
-              background: "var(--bg-subtle)",
+              background: colBg,
+              border: colBorder,
               borderRadius: "var(--radius-lg)",
               minHeight: 200,
               maxHeight: "calc(100vh - 48px - 108px - 56px - 48px)",
@@ -860,9 +867,9 @@ function ActionsBoard({
                 display: "flex",
                 alignItems: "center",
                 padding: "10px 12px",
-                borderBottom: "1px solid var(--border)",
+                borderBottom: headerBorderBottom,
                 gap: 8,
-                background: "var(--bg-subtle)",
+                background: headerBg,
                 borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
                 position: "sticky",
                 top: 0,
