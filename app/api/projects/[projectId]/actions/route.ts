@@ -19,6 +19,7 @@ const schema = z.object({
   priority: z.enum(["critical", "high", "medium", "low"]).optional(),
   targetDate: z.string().optional(),
   departmentHint: z.string().max(200).optional(),
+  estimatedCost: z.string().max(100).nullable().optional(),
   deliverables: z.array(deliverableSchema).min(1).max(26),
 });
 
@@ -82,7 +83,7 @@ export async function POST(
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
     }
 
-    const { ifcCategory, title, description, priority, targetDate, departmentHint, deliverables: deliverableInputs } = parsed.data;
+    const { ifcCategory, title, description, priority, targetDate, departmentHint, estimatedCost, deliverables: deliverableInputs } = parsed.data;
 
     // Atomically get the next action number
     const actionNumber = await getNextActionNumber(params.projectId, ifcCategory);
@@ -98,6 +99,7 @@ export async function POST(
         priority: priority ?? null,
         targetDate: targetDate ? new Date(targetDate) : null,
         departmentHint: departmentHint ?? null,
+        estimatedCost: estimatedCost ?? null,
         createdById: user.id,
       })
       .returning();

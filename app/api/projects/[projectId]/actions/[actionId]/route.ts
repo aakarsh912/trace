@@ -78,6 +78,7 @@ export async function GET(
     priority: action.priority,
     targetDate: action.targetDate ? action.targetDate.toISOString().slice(0, 10) : null,
     departmentHint: action.departmentHint,
+    estimatedCost: action.estimatedCost ?? null,
     deliverables: delRows.map((d) => ({
       id: d.id,
       letter: d.letter,
@@ -102,6 +103,7 @@ const patchSchema = z.object({
   priority: z.enum(["critical", "high", "medium", "low"]).optional(),
   targetDate: z.string().optional(),
   departmentHint: z.string().max(200).optional(),
+  estimatedCost: z.string().max(100).nullable().optional(),
   deliverables: z.array(deliverableSchema).min(1).max(26),
 });
 
@@ -129,7 +131,7 @@ export async function PATCH(
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid" }, { status: 400 });
     }
 
-    const { ifcCategory, title, description, priority, targetDate, departmentHint, deliverables: deliverableInputs } = parsed.data;
+    const { ifcCategory, title, description, priority, targetDate, departmentHint, estimatedCost, deliverables: deliverableInputs } = parsed.data;
 
     // Update action fields
     await db
@@ -141,6 +143,7 @@ export async function PATCH(
         priority: priority ?? null,
         targetDate: targetDate ? new Date(targetDate) : null,
         departmentHint: departmentHint ?? null,
+        estimatedCost: estimatedCost ?? null,
       })
       .where(eq(actions.id, params.actionId));
 

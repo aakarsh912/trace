@@ -49,6 +49,7 @@ export function NewActionModal({ projectId, projectName, loaneeName }: Props): J
   const [priority, setPriority] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [departmentHint, setDepartmentHint] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState("");
   const [deliverableRows, setDeliverableRows] = useState<DeliverableRow[]>([makeDeliverable()]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export function NewActionModal({ projectId, projectName, loaneeName }: Props): J
     setPriority("");
     setTargetDate("");
     setDepartmentHint("");
+    setEstimatedCost("");
     setDeliverableRows([makeDeliverable()]);
     setError(null);
     setLoading(false);
@@ -142,6 +144,7 @@ export function NewActionModal({ projectId, projectName, loaneeName }: Props): J
           priority: priority || undefined,
           targetDate: targetDate || undefined,
           departmentHint: departmentHint.trim() || undefined,
+          estimatedCost: estimatedCost.trim() || undefined,
           deliverables: deliverableRows.map((d) => ({
             description: d.description.trim(),
             documentHints: d.showHints ? d.hints.filter(Boolean) : undefined,
@@ -153,7 +156,7 @@ export function NewActionModal({ projectId, projectName, loaneeName }: Props): J
         setError(data.error ?? "Something went wrong");
         setLoading(false);
       } else {
-        window.location.href = `/projects/${projectId}/actions/${data.actionId}`;
+        window.location.href = `/projects/${projectId}/edit`;
       }
     } catch {
       setError("Network error — please try again");
@@ -335,6 +338,15 @@ export function NewActionModal({ projectId, projectName, loaneeName }: Props): J
                     type="date"
                     value={targetDate}
                     onChange={(e) => setTargetDate(e.target.value)}
+                    style={inputStyle}
+                  />
+                </MetaField>
+
+                <MetaField label="Estimated cost">
+                  <input
+                    value={estimatedCost}
+                    onChange={(e) => setEstimatedCost(e.target.value)}
+                    placeholder="e.g. ₹2,50,000 or $10,000"
                     style={inputStyle}
                   />
                 </MetaField>

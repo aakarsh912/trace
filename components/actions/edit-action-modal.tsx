@@ -49,6 +49,7 @@ type ActionData = {
   priority: string | null;
   targetDate: string | null;
   departmentHint: string | null;
+  estimatedCost: string | null;
   deliverables: Array<{ id: string; letter: string; description: string; documentHints: string[] | null }>;
 };
 
@@ -63,6 +64,7 @@ export function EditActionModal({ actionId, projectId, projectName, loaneeName, 
   const [priority, setPriority] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [departmentHint, setDepartmentHint] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState("");
   const [deliverableRows, setDeliverableRows] = useState<DeliverableRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -108,6 +110,7 @@ export function EditActionModal({ actionId, projectId, projectName, loaneeName, 
       setPriority(data.priority ?? "");
       setTargetDate(data.targetDate ?? "");
       setDepartmentHint(data.departmentHint ?? "");
+      setEstimatedCost(data.estimatedCost ?? "");
       setDeliverableRows(
         data.deliverables.map((d) => ({
           key: d.id,
@@ -166,6 +169,7 @@ export function EditActionModal({ actionId, projectId, projectName, loaneeName, 
           priority: priority || undefined,
           targetDate: targetDate || undefined,
           departmentHint: departmentHint.trim() || undefined,
+          estimatedCost: estimatedCost.trim() || null,
           deliverables: deliverableRows.map((d) => ({
             id: d.id,
             description: d.description.trim(),
@@ -405,6 +409,15 @@ export function EditActionModal({ actionId, projectId, projectName, loaneeName, 
                         type="date"
                         value={targetDate}
                         onChange={(e) => setTargetDate(e.target.value)}
+                        style={inputStyle}
+                      />
+                    </MetaField>
+
+                    <MetaField label="Estimated cost">
+                      <input
+                        value={estimatedCost}
+                        onChange={(e) => setEstimatedCost(e.target.value)}
+                        placeholder="e.g. ₹2,50,000 or $10,000"
                         style={inputStyle}
                       />
                     </MetaField>

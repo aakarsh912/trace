@@ -33,6 +33,7 @@ import type { AssigneeMember } from "@/components/actions/assignee-chip";
 import { RemoveDocumentButton } from "@/components/actions/remove-document-button";
 import { SubmitActionBar } from "@/components/actions/submit-action-bar";
 import { EditActionModal } from "@/components/actions/edit-action-modal";
+import { EstimatedCostField } from "@/components/actions/estimated-cost-field";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ type ActionData = {
   consultantWorkspaceId: string;
   assignedTo: AssigneeMember | null;
   departmentHint: string | null;
+  estimatedCost: string | null;
   loaneeWorkspaceId: string;
   actionNumber: string;
   ifcCategory: IfcCategory;
@@ -257,6 +259,7 @@ async function getActionData(
       description: actions.description,
       isPublished: actions.isPublished,
       departmentHint: actions.departmentHint,
+      estimatedCost: actions.estimatedCost,
       assignedToId: actions.assignedToId,
       projectId: projects.id,
       projectName: projects.name,
@@ -487,6 +490,7 @@ async function getActionData(
     description: actionRow.description,
     isPublished: actionRow.isPublished,
     departmentHint: actionRow.departmentHint ?? null,
+    estimatedCost: actionRow.estimatedCost ?? null,
     assignedTo,
     deliverables: enrichedDeliverables,
     comments: enrichedComments,
@@ -1242,6 +1246,14 @@ export default async function ActionPage({
                 >
                   {data.projectName}
                 </Link>
+              </MetaRow>
+              <MetaRow label="Estimated cost">
+                <EstimatedCostField
+                  actionId={data.id}
+                  projectId={data.projectId}
+                  initialCost={data.estimatedCost}
+                  canEdit={isConsultant}
+                />
               </MetaRow>
             </div>
           </div>
