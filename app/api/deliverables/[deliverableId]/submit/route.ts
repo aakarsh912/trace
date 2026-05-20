@@ -11,8 +11,6 @@ import {
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { getCurrentUser, getUserWorkspaces } from "@/lib/auth/clerk";
 import { can } from "@/lib/auth/permissions";
-import { sendDeliverableSubmittedEmail } from "@/lib/email/send";
-import { users } from "@/lib/db/schema";
 
 const schema = z.object({
   fileKey: z.string().min(1),
@@ -56,12 +54,6 @@ export async function POST(
   const [row] = await db
     .select({
       status: deliverables.status,
-      letter: deliverables.letter,
-      description: deliverables.description,
-      assignedToId: deliverables.assignedToId,
-      actionId: actions.id,
-      actionNumber: actions.actionNumber,
-      actionTitle: actions.title,
       projectId: projects.id,
       loaneeWorkspaceId: projects.loaneeWorkspaceId,
     })
@@ -129,10 +121,10 @@ export async function POST(
     isCurrent: true,
   });
 
-  // Mark deliverable as submitted
+  // Reset status to pending (upload saves the file but does not submit for review)
   await db
     .update(deliverables)
-    .set({ status: "submitted" })
+    .set({ status: "pending" })
     .where(eq(deliverables.id, params.deliverableId));
 
   // Activity log
@@ -144,29 +136,6 @@ export async function POST(
     entityId: params.deliverableId,
     entityType: "deliverable",
   });
-
-  // Email: notify the assigned consultant (if set)
-  if (row.assignedToId) {
-    const [assignee] = await db
-      .select({ email: users.email })
-      .from(users)
-      .where(eq(users.id, row.assignedToId))
-      .limit(1);
-
-    if (assignee) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-      const submitterName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
-      await sendDeliverableSubmittedEmail(assignee.email, {
-        actionNumber: row.actionNumber,
-        actionTitle: row.actionTitle,
-        deliverableLetter: row.letter,
-        deliverableDescription: row.description,
-        submitterName,
-        loaneeWorkspaceName: ws.workspaceName,
-        actionUrl: `${appUrl}/projects/${row.projectId}/actions/${row.actionId}`,
-      });
-    }
-  }
 
   return NextResponse.json({ ok: true });
   } catch (err) {

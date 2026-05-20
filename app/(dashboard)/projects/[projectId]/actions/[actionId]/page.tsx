@@ -29,6 +29,8 @@ import { DownloadLink } from "@/components/actions/download-link";
 import { CommentItem } from "@/components/actions/comment-item";
 import { AssigneeChip } from "@/components/actions/assignee-chip";
 import type { AssigneeMember } from "@/components/actions/assignee-chip";
+import { RemoveDocumentButton } from "@/components/actions/remove-document-button";
+import { SubmitActionBar } from "@/components/actions/submit-action-bar";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -53,6 +55,7 @@ type DeliverableRow = {
     version: number;
     fileSize: number | null;
     uploadedAt: Date;
+    uploadedById: string | null;
   } | null;
   review: {
     decision: "approved" | "sent_back";
@@ -267,6 +270,7 @@ async function getActionData(
             version: documents.version,
             fileSize: documents.fileSize,
             uploadedAt: documents.uploadedAt,
+            uploadedById: documents.uploadedById,
           })
           .from(documents)
           .where(
@@ -322,6 +326,7 @@ async function getActionData(
             version: doc.version,
             fileSize: doc.fileSize,
             uploadedAt: doc.uploadedAt,
+            uploadedById: doc.uploadedById,
           }
         : null,
       review: rev
@@ -486,10 +491,12 @@ function DeliverableCard({
   deliverable,
   workspaceType,
   role,
+  currentUserId,
 }: {
   deliverable: DeliverableRow;
   workspaceType: WorkspaceType;
   role: WorkspaceMemberRole;
+  currentUserId: string;
 }): JSX.Element {
   const { id, letter, description, status, doc, review } = deliverable;
   const isConsultant = workspaceType === "consultant";
@@ -739,10 +746,18 @@ function DeliverableCard({
                 background: "var(--bg-subtle)",
                 borderRadius: 3,
                 color: "var(--fg-secondary)",
+                flexShrink: 0,
               }}
             >
               v{doc.version}
             </span>
+            {isLoanee && status !== "approved" && (
+              <RemoveDocumentButton
+                deliverableId={id}
+                uploadedById={doc.uploadedById}
+                currentUserId={currentUserId}
+              />
+            )}
           </div>
         </div>
       )}
@@ -839,7 +854,9 @@ export default async function ActionPage({
 
   const isConsultant = wsCtx.workspaceType === "consultant";
   const isLoanee = wsCtx.workspaceType === "loanee";
-  const hasFooter = isConsultant && data.isPublished;
+  const hasConsultantFooter = isConsultant && data.isPublished;
+  const hasLoaneeFooter = isLoanee && data.isPublished;
+  const hasFooter = hasConsultantFooter || hasLoaneeFooter;
   const userInitials = getInitials(wsCtx.firstName, wsCtx.lastName);
   const canAssign = isLoanee && can("loanee", wsCtx.role, "deliverable:assign");
   const allApproved = totalCount > 0 && approvedCount === totalCount;
@@ -1029,6 +1046,7 @@ export default async function ActionPage({
                     deliverable={d}
                     workspaceType={wsCtx.workspaceType}
                     role={wsCtx.role}
+                    currentUserId={wsCtx.userId}
                   />
                 ))}
               </div>
@@ -1164,8 +1182,21 @@ export default async function ActionPage({
         </aside>
       </div>
 
+      {/* ── Loanee submit bar ─────────────────────────────────────────────── */}
+      {hasLoaneeFooter && (
+        <SubmitActionBar
+          actionId={data.id}
+          projectId={data.projectId}
+          deliverables={data.deliverables.map((d) => ({
+            id: d.id,
+            status: d.status,
+            hasDoc: d.doc !== null,
+          }))}
+        />
+      )}
+
       {/* ── Consultant footer ─────────────────────────────────────────────── */}
-      {hasFooter && (
+      {hasConsultantFooter && (
         <div
           style={{
             position: "fixed",
