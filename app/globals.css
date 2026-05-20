@@ -148,6 +148,12 @@ html, body {
   background: var(--bg-hover);
 }
 
+/* ── Board card hover ─────────────────────────────────────────────────────── */
+.board-card:hover {
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── Action detail layout ──────────────────────────────────────────────────── */
 .action-detail {
   display: grid;
