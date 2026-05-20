@@ -12,6 +12,7 @@ import {
   documents,
   reviews,
   comments,
+  activityLog,
 } from "@/lib/db/schema";
 import type {
   WorkspaceType,
@@ -19,7 +20,7 @@ import type {
   IfcCategory,
   DeliverableStatus,
 } from "@/lib/db/schema";
-import { eq, and, isNull, inArray } from "drizzle-orm";
+import { eq, and, isNull, inArray, or, desc } from "drizzle-orm";
 import { IFC_CATEGORIES } from "@/lib/db/helpers";
 import { can } from "@/lib/auth/permissions";
 import { ReviewControls } from "@/components/actions/review-controls";
@@ -77,6 +78,15 @@ type CommentRow = {
   workspaceName: string | null;
 };
 
+type ActivityLogRow = {
+  id: string;
+  eventType: string;
+  metadata: string | null;
+  createdAt: Date;
+  actorFirstName: string | null;
+  actorLastName: string | null;
+};
+
 type ActionData = {
   id: string;
   projectId: string;
@@ -93,6 +103,7 @@ type ActionData = {
   isPublished: boolean;
   deliverables: DeliverableRow[];
   comments: CommentRow[];
+  activityEntries: ActivityLogRow[];
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -165,6 +176,30 @@ function formatDate(date: Date): string {
     month: "short",
     day: "numeric",
   }).format(date);
+}
+
+function formatRelativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60_000);
+  const diffHours = Math.floor(diffMs / 3_600_000);
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+}
+
+function getActivityLabel(eventType: string): string {
+  switch (eventType) {
+    case "action.assigned": return "assigned this action";
+    case "action.unassigned": return "unassigned this action";
+    case "action.submitted": return "submitted for review";
+    case "action.edited": return "updated this action";
+    case "document_uploaded": return "uploaded a document";
+    case "document_removed": return "removed a document";
+    case "deliverable_approved": return "approved a deliverable";
+    case "deliverable_sent_back": return "sent a deliverable back";
+    default: return eventType.replace(/[._]/g, " ");
+  }
 }
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
@@ -400,6 +435,33 @@ async function getActionData(
     assignedTo = assigneeRow ?? null;
   }
 
+  // Activity log — action-level events + deliverable-level events for this action
+  const activityWhere =
+    delivIds.length > 0
+      ? or(
+          and(eq(activityLog.entityId, actionId), eq(activityLog.entityType, "action")),
+          and(
+            inArray(activityLog.entityId, delivIds),
+            eq(activityLog.entityType, "deliverable")
+          )
+        )
+      : and(eq(activityLog.entityId, actionId), eq(activityLog.entityType, "action"));
+
+  const activityRows = await db
+    .select({
+      id: activityLog.id,
+      eventType: activityLog.eventType,
+      metadata: activityLog.metadata,
+      createdAt: activityLog.createdAt,
+      actorFirstName: users.firstName,
+      actorLastName: users.lastName,
+    })
+    .from(activityLog)
+    .leftJoin(users, eq(activityLog.actorId, users.id))
+    .where(activityWhere)
+    .orderBy(desc(activityLog.createdAt))
+    .limit(10);
+
   return {
     id: actionRow.actionId,
     projectId: actionRow.projectId,
@@ -416,6 +478,7 @@ async function getActionData(
     assignedTo,
     deliverables: enrichedDeliverables,
     comments: enrichedComments,
+    activityEntries: activityRows,
   };
 }
 
@@ -1169,16 +1232,53 @@ export default async function ActionPage({
 
           <div>
             <SectionLabel>Activity</SectionLabel>
-            <p
-              style={{
-                fontSize: 12.5,
-                color: "var(--fg-tertiary)",
-                margin: 0,
-                fontStyle: "italic",
-              }}
-            >
-              Activity log coming soon.
-            </p>
+            {data.activityEntries.length === 0 ? (
+              <p
+                style={{
+                  fontSize: 12.5,
+                  color: "var(--fg-tertiary)",
+                  margin: 0,
+                  fontStyle: "italic",
+                }}
+              >
+                No activity yet.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {data.activityEntries.map((entry) => {
+                  const actorName =
+                    entry.actorFirstName ?? entry.actorLastName ?? "Someone";
+                  return (
+                    <div
+                      key={entry.id}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        gap: 8,
+                      }}
+                    >
+                      <span style={{ fontSize: 12.5, color: "var(--fg-secondary)", lineHeight: 1.4 }}>
+                        <span style={{ fontWeight: 500, color: "var(--fg)" }}>{actorName}</span>
+                        {" "}
+                        {getActivityLabel(entry.eventType)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "var(--fg-tertiary)",
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                          marginTop: 1,
+                        }}
+                      >
+                        {formatRelativeTime(entry.createdAt)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </aside>
       </div>
