@@ -3,7 +3,7 @@ config({ path: ".env.local" });
 
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import {
   workspaces,
   projects,
