@@ -33,7 +33,6 @@ import type { AssigneeMember } from "@/components/actions/assignee-chip";
 import { RemoveDocumentButton } from "@/components/actions/remove-document-button";
 import { SubmitActionBar } from "@/components/actions/submit-action-bar";
 import { EditActionModal } from "@/components/actions/edit-action-modal";
-import { EstimatedCostField } from "@/components/actions/estimated-cost-field";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -1248,12 +1247,9 @@ export default async function ActionPage({
                 </Link>
               </MetaRow>
               <MetaRow label="Estimated cost">
-                <EstimatedCostField
-                  actionId={data.id}
-                  projectId={data.projectId}
-                  initialCost={data.estimatedCost}
-                  canEdit={isConsultant}
-                />
+                <span style={{ color: data.estimatedCost ? "var(--fg-secondary)" : "var(--fg-tertiary)", fontSize: 12.5 }}>
+                  {data.estimatedCost ?? "Not set"}
+                </span>
               </MetaRow>
             </div>
           </div>
