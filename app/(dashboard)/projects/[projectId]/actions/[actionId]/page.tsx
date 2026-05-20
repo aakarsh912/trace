@@ -32,6 +32,7 @@ import { AssigneeChip } from "@/components/actions/assignee-chip";
 import type { AssigneeMember } from "@/components/actions/assignee-chip";
 import { RemoveDocumentButton } from "@/components/actions/remove-document-button";
 import { SubmitActionBar } from "@/components/actions/submit-action-bar";
+import { EditActionModal } from "@/components/actions/edit-action-modal";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,7 @@ type ActionData = {
   id: string;
   projectId: string;
   projectName: string;
+  loaneeName: string;
   bankWorkspaceId: string;
   consultantWorkspaceId: string;
   assignedTo: AssigneeMember | null;
@@ -464,10 +466,18 @@ async function getActionData(
     .orderBy(desc(activityLog.createdAt))
     .limit(10);
 
+  // Loanee workspace name (for EditActionModal placeholder text)
+  const [loaneeWsRow] = await db
+    .select({ name: workspaces.name })
+    .from(workspaces)
+    .where(eq(workspaces.id, actionRow.loaneeWorkspaceId))
+    .limit(1);
+
   return {
     id: actionRow.actionId,
     projectId: actionRow.projectId,
     projectName: actionRow.projectName,
+    loaneeName: loaneeWsRow?.name ?? "loanee",
     bankWorkspaceId: actionRow.bankWorkspaceId,
     consultantWorkspaceId: actionRow.consultantWorkspaceId,
     loaneeWorkspaceId: actionRow.loaneeWorkspaceId,
@@ -1021,6 +1031,18 @@ export default async function ActionPage({
             >
               {data.title}
             </h1>
+            {isConsultant && (
+              <div style={{ flexShrink: 0, paddingTop: 4 }}>
+                <EditActionModal
+                  actionId={data.id}
+                  projectId={data.projectId}
+                  projectName={data.projectName}
+                  loaneeName={data.loaneeName}
+                  variant="detail"
+                  disabled={allApproved}
+                />
+              </div>
+            )}
           </div>
 
           {/* Status row */}

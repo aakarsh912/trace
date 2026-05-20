@@ -37,6 +37,8 @@ type Props = {
   projectId: string;
   projectName: string;
   loaneeName: string;
+  variant?: "detail";
+  disabled?: boolean;
 };
 
 type ActionData = {
@@ -50,7 +52,7 @@ type ActionData = {
   deliverables: Array<{ id: string; letter: string; description: string; documentHints: string[] | null }>;
 };
 
-export function EditActionModal({ actionId, projectId, projectName, loaneeName }: Props): JSX.Element {
+export function EditActionModal({ actionId, projectId, projectName, loaneeName, variant, disabled }: Props): JSX.Element {
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -186,27 +188,57 @@ export function EditActionModal({ actionId, projectId, projectName, loaneeName }
 
   return (
     <>
-      {/* Pencil trigger — hidden until row hover via CSS */}
-      <button
-        onClick={(e) => { e.preventDefault(); void handleOpen(); }}
-        className="edit-action-btn"
-        title="Edit action"
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          padding: "2px 4px",
-          borderRadius: 3,
-          color: "var(--fg-tertiary)",
-          display: "inline-flex",
-          alignItems: "center",
-          flexShrink: 0,
-        }}
-      >
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M11 2l3 3-8 8H3v-3L11 2z" />
-        </svg>
-      </button>
+      {variant === "detail" ? (
+        /* Full labeled button for action detail page */
+        <button
+          onClick={() => { if (!disabled) void handleOpen(); }}
+          disabled={disabled}
+          title={disabled ? "All deliverables are approved" : "Edit action"}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            padding: "5px 12px",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius)",
+            background: "transparent",
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: disabled ? "var(--fg-tertiary)" : "var(--fg-secondary)",
+            cursor: disabled ? "not-allowed" : "pointer",
+            fontFamily: "inherit",
+            opacity: disabled ? 0.55 : 1,
+            transition: "background 80ms, color 80ms",
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M11 2l3 3-8 8H3v-3L11 2z" />
+          </svg>
+          Edit Action
+        </button>
+      ) : (
+        /* Pencil trigger — hidden until row hover via CSS */
+        <button
+          onClick={(e) => { e.preventDefault(); void handleOpen(); }}
+          className="edit-action-btn"
+          title="Edit action"
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: "2px 4px",
+            borderRadius: 3,
+            color: "var(--fg-tertiary)",
+            display: "inline-flex",
+            alignItems: "center",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M11 2l3 3-8 8H3v-3L11 2z" />
+          </svg>
+        </button>
+      )}
 
       {/* Modal */}
       {open && (
