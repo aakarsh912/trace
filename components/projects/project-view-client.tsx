@@ -27,7 +27,6 @@ export type SerializedActionRow = {
 
 type DisplayStatus =
   | "draft"
-  | "todo"
   | "progress"
   | "submitted"
   | "approved"
@@ -93,7 +92,7 @@ const BOARD_COLUMNS: {
     key: "progress",
     label: "In Progress",
     dotColor: "var(--status-progress-fg)",
-    statuses: ["todo", "progress"],
+    statuses: ["progress"],
   },
   {
     key: "submitted",
@@ -125,11 +124,6 @@ const STATUS_CONFIG: Record<
     bg: "var(--status-draft-bg)",
     fg: "var(--status-draft-fg)",
   },
-  todo: {
-    label: "Action Items",
-    bg: "var(--status-todo-bg)",
-    fg: "var(--status-todo-fg)",
-  },
   progress: {
     label: "In Progress",
     bg: "var(--status-progress-bg)",
@@ -155,7 +149,6 @@ const STATUS_CONFIG: Record<
 const STATUS_DISPLAY_OPTIONS: { value: DisplayStatus | ""; label: string }[] = [
   { value: "", label: "All statuses" },
   { value: "draft", label: "Draft" },
-  { value: "todo", label: "Action Items" },
   { value: "progress", label: "In Progress" },
   { value: "submitted", label: "Submitted" },
   { value: "returned", label: "Returned" },
@@ -166,11 +159,9 @@ const STATUS_DISPLAY_OPTIONS: { value: DisplayStatus | ""; label: string }[] = [
 
 function getDisplayStatus(row: SerializedActionRow): DisplayStatus {
   if (!row.isPublished) return "draft";
-  if (row.total === 0) return "todo";
   if (row.sentBack > 0) return "returned";
-  if (row.approved === row.total) return "approved";
-  if (row.pending === row.total) return "todo";
-  if (row.submitted > 0 && row.pending === 0) return "submitted";
+  if (row.total > 0 && row.approved === row.total) return "approved";
+  if (row.submitted > 0) return "submitted";
   return "progress";
 }
 
