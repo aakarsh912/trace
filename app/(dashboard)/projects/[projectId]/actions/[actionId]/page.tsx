@@ -747,36 +747,6 @@ function DeliverableCard({
               Locked
             </span>
           )}
-          {status === "approved" && isConsultant && (
-            <button
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                padding: "4px 8px",
-                fontSize: 11.5,
-                fontFamily: "inherit",
-                cursor: "pointer",
-                background: "transparent",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
-                color: "var(--fg-secondary)",
-              }}
-              title="Remove approval"
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <path d="M3 8a5 5 0 0 1 9-3M12 3v3h-3" />
-              </svg>
-              Remove approval
-            </button>
-          )}
         </div>
       </div>
 
@@ -1366,36 +1336,63 @@ export default async function ActionPage({
               </span>
             )}
           </div>
-          <button
-            disabled={!allApproved}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "7px 16px",
-              fontSize: 13.5,
-              fontWeight: 500,
-              fontFamily: "inherit",
-              background: allApproved ? "var(--fg)" : "var(--bg-subtle)",
-              color: allApproved ? "white" : "var(--fg-tertiary)",
-              border: "none",
-              borderRadius: "var(--radius)",
-              cursor: allApproved ? "pointer" : "not-allowed",
-              transition: "background 80ms",
-            }}
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+          {allApproved ? (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 14px",
+                fontSize: 13.5,
+                fontWeight: 600,
+                borderRadius: "var(--radius)",
+                background: "var(--status-approved-bg)",
+                color: "var(--status-approved-fg)",
+              }}
             >
-              <path d="M3 8l3.5 3.5L13 5" />
-            </svg>
-            Approve Action
-          </button>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M3 8l3.5 3.5L13 5" />
+              </svg>
+              Action Approved
+            </span>
+          ) : (
+            <button
+              disabled
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 16px",
+                fontSize: 13.5,
+                fontWeight: 500,
+                fontFamily: "inherit",
+                background: "var(--bg-subtle)",
+                color: "var(--fg-tertiary)",
+                border: "none",
+                borderRadius: "var(--radius)",
+                cursor: "not-allowed",
+              }}
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M3 8l3.5 3.5L13 5" />
+              </svg>
+              Approve Action
+            </button>
+          )}
         </div>
       )}
     </div>
