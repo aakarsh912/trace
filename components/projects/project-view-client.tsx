@@ -25,14 +25,9 @@ export type SerializedActionRow = {
   assigneeLastName: string | null;
 };
 
-type DisplayStatus =
-  | "draft"
-  | "progress"
-  | "submitted"
-  | "approved"
-  | "returned";
+type DisplayStatus = "progress" | "submitted" | "approved" | "returned";
 
-type BoardColumnKey = "draft" | "progress" | "submitted" | "returned" | "approved";
+type BoardColumnKey = "progress" | "submitted" | "returned" | "approved";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -83,12 +78,6 @@ const BOARD_COLUMNS: {
   attention?: boolean;
 }[] = [
   {
-    key: "draft",
-    label: "Draft",
-    dotColor: "var(--status-draft-fg)",
-    statuses: ["draft"],
-  },
-  {
     key: "progress",
     label: "In Progress",
     dotColor: "var(--status-progress-fg)",
@@ -119,11 +108,6 @@ const STATUS_CONFIG: Record<
   DisplayStatus,
   { label: string; bg: string; fg: string }
 > = {
-  draft: {
-    label: "Draft",
-    bg: "var(--status-draft-bg)",
-    fg: "var(--status-draft-fg)",
-  },
   progress: {
     label: "In Progress",
     bg: "var(--status-progress-bg)",
@@ -148,7 +132,6 @@ const STATUS_CONFIG: Record<
 
 const STATUS_DISPLAY_OPTIONS: { value: DisplayStatus | ""; label: string }[] = [
   { value: "", label: "All statuses" },
-  { value: "draft", label: "Draft" },
   { value: "progress", label: "In Progress" },
   { value: "submitted", label: "Submitted" },
   { value: "returned", label: "Returned" },
@@ -158,7 +141,6 @@ const STATUS_DISPLAY_OPTIONS: { value: DisplayStatus | ""; label: string }[] = [
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getDisplayStatus(row: SerializedActionRow): DisplayStatus {
-  if (!row.isPublished) return "draft";
   if (row.sentBack > 0) return "returned";
   if (row.total > 0 && row.approved === row.total) return "approved";
   if (row.submitted > 0) return "submitted";
@@ -604,14 +586,10 @@ function ActionTableRow({
   projectName: string;
   loaneeName: string;
 }): JSX.Element {
-  const isDraft = !row.isPublished;
   return (
     <tr
       className="action-table-row"
-      style={{
-        borderBottom: "1px solid var(--border)",
-        opacity: isDraft ? 0.55 : 1,
-      }}
+      style={{ borderBottom: "1px solid var(--border)" }}
     >
       <td
         style={{
@@ -948,6 +926,42 @@ export function ProjectViewClient({
     if (statusFilter && getDisplayStatus(row) !== statusFilter) return false;
     return true;
   });
+
+  if (actionRows.length === 0) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "80px 24px",
+          color: "var(--fg-tertiary)",
+          gap: 10,
+          textAlign: "center",
+        }}
+      >
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          style={{ opacity: 0.35 }}
+        >
+          <rect x="2" y="2" width="12" height="12" rx="1" />
+          <path d="M5 8h6M5 5h6M5 11h3" />
+        </svg>
+        <p style={{ fontSize: 13.5, fontWeight: 500, color: "var(--fg-secondary)", margin: 0 }}>
+          No actions yet
+        </p>
+        <p style={{ fontSize: 12.5, margin: 0 }}>
+          The action plan hasn&apos;t been published yet.
+        </p>
+      </div>
+    );
+  }
 
   const ifcOptionsDisplay: { value: string; label: string }[] = [
     { value: "", label: "All categories" },

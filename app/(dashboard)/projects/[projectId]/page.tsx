@@ -107,17 +107,12 @@ async function getProjectData(
   return rows[0] ?? null;
 }
 
-async function getActionsForProject(
-  projectId: string,
-  workspaceType: WorkspaceType
-): Promise<ActionRow[]> {
+async function getActionsForProject(projectId: string): Promise<ActionRow[]> {
   const conditions = [
     eq(actions.projectId, projectId),
     isNull(actions.deletedAt),
+    eq(actions.isPublished, true),
   ];
-  if (workspaceType === "loanee") {
-    conditions.push(eq(actions.isPublished, true));
-  }
 
   const actionRows = await db
     .select({
@@ -432,7 +427,7 @@ export default async function ProjectDetailPage({
 
   const [project, actionRows] = await Promise.all([
     getProjectData(params.projectId, workspaceId, workspaceType),
-    getActionsForProject(params.projectId, workspaceType),
+    getActionsForProject(params.projectId),
   ]);
 
   if (!project) notFound();
